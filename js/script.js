@@ -284,6 +284,14 @@ $(document).ready(function() {
     }
   });
 
+  $(".user_checkbox").click(function () {
+    if ($('.user_checkbox:checked').length === $('.user_checkbox').length) {
+      $('#selectAll').prop('checked', true);
+    } else {
+      $('#selectAll').prop('checked', false);
+    }
+  })
+
   multipleEditFunction("#multiple-edit-btn", "#multiple-action"); // multi update function in header button and select
   multipleEditFunction("#multiple-edit-btn-2", "#multiple-action-2"); // multi update function in footer button and select
   // -----------------------------------------------------------------------------------------------
