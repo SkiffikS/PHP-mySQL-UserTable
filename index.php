@@ -86,7 +86,6 @@
                         <?php
                           $result = mysqli_query($conn, "SELECT * FROM user"); // add all users in database
                           while ($row = mysqli_fetch_array($result)) { // get one row
-
                             // get data in one user
                             $id = $row["id"];
                             $first_name = $row["first_name"];
@@ -97,10 +96,8 @@
                             } else {
                               $status = "not-active-circle";
                             }
-
-                            // return user row to table
                             echo "
-                            <tr id='$id'>
+                            <tr id='user-$id'>
                               <td class='align-middle'>
                                 <div class='custom-control custom-control-inline custom-checkbox custom-control-nameless m-0 align-top'>
                                   <input type='checkbox' class='custom-control-input user_checkbox' data-user-id='$id'>
@@ -157,76 +154,69 @@
         </div>
 
         <!-- MODAL TO ADD/EDIT DATA -->
-        <div class="modal fade" id="user-form-modal" tabindex="-1" aria-labelledby="user-form-modal" aria-hidden="true">
+        <div class="modal fade" id="user-form-modal" tabindex="-1" aria-labelledby="UserModalLabel" aria-hidden="true">
           <div class="modal-dialog">
             <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="UserModalLabel"></h5>
-                <button type="button" class="close-modal" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
-
-              <div class="modal-body">
-                <form action="php/update.php" method="post">
+              <form action="php/update.php" method="post">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="UserModalLabel"></h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
                   <input type="hidden" id="update_id" name="update_id">
-                  <div class="form-group">
-                    <label for="first-name" class="col-form-label">First Name:</label>
-                    <input type="text" class="form-control md-in" id="user-first-name" name="user-first-name">
+                  <div class="mb-3">
+                    <label for="first-name" class="form-label">First Name:</label>
+                    <input type="text" class="form-control" id="user-first-name" name="user-first-name">
                   </div>
-                  <div class="form-group">
-                    <label for="last-name" class="col-form-label">Last Name:</label>
-                    <input type="text" class="form-control md-in" id="user-last-name" name="user-last-name">
+                  <div class="mb-3">
+                    <label for="last-name" class="form-label">Last Name:</label>
+                    <input type="text" class="form-control" id="user-last-name" name="user-last-name">
                   </div>
-                  <div class="row mt-3 mb-3">
-                    <div class="col w-50 h-25 pt-md-2">
-                      <div class="row w-100">
-                        <div class="col w-50 pt-md-1">User status</div>
-                        <div class="col w-50">
-                          <label class="switch">
-                            <input type="checkbox" id="user-status" name="user-status" value="0">
-                            <span class="slider round" id="user-status-btn"></span>
-                          </label>
-                        </div>
+                  <div class="row g-3 mb-3">
+                    <div class="col-6">
+                      <label for="user-status" class="form-label">User status</label>
+                      <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="user-status" name="user-status" value="0">
+                        <label class="form-check-label" for="user-status"></label>
                       </div>
                     </div>
-                    <div class="col w-50 text-center">
-                      <select class="form-select form-select-lg mb-3 w-100 h-75 text-center md-in" id="user-select" name="user-select">
+                    <div class="col-6">
+                      <label for="user-select" class="form-label">User Type</label>
+                      <select class="form-select" id="user-select" name="user-select">
                         <option value="" disabled selected>-Please Select-</option>
                         <option value="Admin">Admin</option>
                         <option value="User">User</option>
                       </select>
                     </div>
                   </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary close-modal" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary" name="updatedata" id="submit-modal">Save</button>
-                  </div>
-                </form>
-              </div>
+                  <div class="col mb-1 text-center text-danger" id="error-modal-text"></div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary" name="updatedata" id="submit-modal">Save</button>
+                </div>
+              </form>
             </div>
           </div>
         </div>
         <!-- MODAL TO ADD/EDIT DATA -->
 
         <!-- DELETE DATA MODAL -->
-        <div class="modal fade" id="deletemodal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-          <div class="modal-dialog" role="document">
+        <div class="modal fade" id="deletemodal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
             <div class="modal-content">
               <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel"> Delete </h5>
-                <button type="button" class="close close-del-modal" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
+                <h5 class="modal-title" id="deleteModalLabel">Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               <form action="php/delete.php" method="post">
                 <div class="modal-body">
                   <input type="hidden" name="delete_id" id="delete_id">
-                  <h4> Delete this Data?</h4>
+                  <h4>Delete this Data?</h4>
                 </div>
                 <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary close-del-modal" data-dismiss="modal"> No </button>
-                  <button type="submit" name="deletedata" class="btn btn-primary" id="delete-data-btn"> Delete it. </button>
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                  <button type="submit" name="deletedata" class="btn btn-danger" id="delete-data-btn">Delete it</button>
                 </div>
               </form>
             </div>
@@ -235,25 +225,23 @@
         <!-- DELETE DATA MODAL -->
 
         <!-- WARMING MODAL FOR MULTIPLE EDIT -->
-        <div class="modal fade" id="multiple-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-          <div class="modal-dialog" role="document">
+        <div class="modal fade" id="multiple-modal" tabindex="-1">
+          <div class="modal-dialog">
             <div class="modal-content">
               <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel"> Warning </h5>
-                <button type="button" class="close close-war-modal" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
+                <h5 class="modal-title"> Warning </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
-                <div class="modal-body">
-                  <h4 id="warning-text"></h4>
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary close-war-modal" data-dismiss="modal"> Ok </button>
-                </div>
+              <div class="modal-body">
+                <h4 id="warning-text"></h4>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"> Ok </button>
+              </div>
             </div>
           </div>
         </div>
-         <!-- WARMING MODAL FOR MULTIPLE EDIT -->
+        <!-- WARMING MODAL FOR MULTIPLE EDIT -->
 
         </div>
       </div>
