@@ -19,7 +19,7 @@ if ($action == "set-active") {
 $query_run = mysqli_query($conn, $query);
 
 if ($query_run) {
-  echo '{"status": true, "error": null, "action": "'.$action.'", "ids": "('.$id_list_string.')"}';
+  echo '{"status": true, "error": null, "action": "'.$action.'", "ids": "'.$id_list_string.'"}';
 } else {
   $error_number = mysqli_errno($conn);
   $error_text = mysqli_error($conn);

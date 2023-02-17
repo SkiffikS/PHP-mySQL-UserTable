@@ -105,7 +105,7 @@
                                 </div>
                               </td>
                               <td class='table-id' id='table-user-id'>$id</td>
-                              <td class='text-nowrap'>$first_name $last_name</td>
+                              <td class='text-nowrap' id='table-user-name'>$first_name $last_name</td>
                               <td class='text-center align-middle'><i class='fa fa-circle' id='$status'></i></td>
                               <td class='text-nowrap align-middle'>$role</td>
                               <td class='text-center align-middle'>
@@ -212,7 +212,7 @@
               <form action="php/delete.php" method="post">
                 <div class="modal-body">
                   <input type="hidden" name="delete_id" id="delete_id">
-                  <h4>Delete this Data?</h4>
+                  <h4 id="delete-modat-text"></h4>
                 </div>
                 <div class="modal-footer">
                   <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
