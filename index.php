@@ -181,7 +181,7 @@
                       </div>
                     </div>
                     <div class="col-6">
-                      <label for="user-select" class="form-label">User Type</label>
+                      <label for="user-select" class="form-label">User Role</label>
                       <select class="form-select" id="user-select" name="user-select">
                         <option value="" disabled selected>-Please Select-</option>
                         <option value="Admin">Admin</option>

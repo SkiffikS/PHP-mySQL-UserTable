@@ -149,12 +149,14 @@ $(document).ready(function() {
       $("#UserModalLabel").html("Edit User"); // modal title
       if(data[3].find(".fa-circle").attr("id") === "active-circle") {
         $('#user-status').prop('checked', true);
+        $('#user-status').val("1");
       } else {
         $('#user-status').prop('checked', false);
+        $('#user-status').val("0");
       }
     }
 
-    //$("#error-modal-text").html("");
+    $("#error-modal-text").html("");
     $("#user-form-modal").modal("show"); // show update modal
 
     $('#user-status').click(function() {

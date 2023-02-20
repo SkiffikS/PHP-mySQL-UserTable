@@ -18,7 +18,7 @@ if (!preg_match("/^[a-zA-Zа-яА-Я ]*$/u", $fname) || $fname == "") {
   echo '{"status": false, "error": {"code": 137, "message": "incorrect last name"}}';
 } else if ($role == "") {
   // check if action not empty
-  echo '{"status": false, "error": {"code": 138, "message": "incorrect User Type"}}';
+  echo '{"status": false, "error": {"code": 138, "message": "incorrect user Role"}}';
 } else {
   if($id == -1) {
     $query = "INSERT INTO user (`first_name`,`last_name`,`status`, `role`) VALUES ('$fname','$lname','$status','$role')";
