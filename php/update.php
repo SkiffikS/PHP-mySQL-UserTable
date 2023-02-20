@@ -34,22 +34,28 @@ if (!preg_match("/^[a-zA-Zа-яА-Я ]*$/u", $fname) || $fname == "") {
       } else {
         $error_number = mysqli_errno($conn);
         $error_text = mysqli_error($conn);
-        echo '{"status": false, "error": {"code": '.$error_number.', "message": "$error_text"}}';
+        echo '{"status": false, "error": {"code": '.$error_number.', "message": "'.$error_text.'"}}';
       }
     } else {
       $error_number = mysqli_errno($conn);
       $error_text = mysqli_error($conn);
-      echo '{"status": false, "error": {"code": '.$error_number.', "message": "$error_text"}}';
+      echo '{"status": false, "error": {"code": '.$error_number.', "message": "'.$error_text.'"}}';
     }
   } else {
-    $query = "UPDATE user SET first_name='$fname', last_name='$lname', status='$status', role='$role' WHERE id='$id'";
-    $result = mysqli_query($conn, $query);
-    if($result) {
-      echo '{"status": true, "error": null, "id": '.$id.'}';
+    $sql = "SELECT * FROM user WHERE id = $id";
+    $is_true = mysqli_query($conn, $sql);
+    if ($is_true->num_rows > 0) {
+      $query = "UPDATE user SET first_name='$fname', last_name='$lname', status='$status', role='$role' WHERE id='$id'";
+      $result = mysqli_query($conn, $query);
+      if($result) {
+        echo '{"status": true, "error": null, "id": '.$id.'}';
+      } else {
+        $error_number = mysqli_errno($conn);
+        $error_text = mysqli_error($conn);
+        echo '{"status": false, "error": {"code": '.$error_number.', "message": "$error_text"}}';
+      }
     } else {
-      $error_number = mysqli_errno($conn);
-      $error_text = mysqli_error($conn);
-      echo '{"status": false, "error": {"code": '.$error_number.', "message": "$error_text"}}';
+      echo '{"status": false, "error": {"code": 140, "message": "User not found"}}';
     }
   }
 }

@@ -40,7 +40,11 @@ function multipleEditFunction(editButton, actionSelect) {
       $('#multiple-modal').modal("show");
     } else if (edit_user_ids.length > 0 && action === "delete-multiple-users") {
       // if action delete user
-      $("#delete-modat-text").html(`Delete users: ${user_names.join(', ')}?`)
+      if(user_names.length === 1) {
+        $("#delete-modat-text").html(`Delete user: ${$("#user-"+edit_user_ids[0]).find("#table-user-name").text()}?`)
+      } else {
+        $("#delete-modat-text").html(`Delete users: ${user_names.join(', ')}?`)
+      }
       $('#deletemodal').modal("show"); // show delete modal
       $("#delete-data-btn").click(function(e) {
         // if user click "delete"
@@ -61,6 +65,24 @@ function multipleEditFunction(editButton, actionSelect) {
               for(let user_id = 0; user_id < ed_data.id_list.length; user_id++) {
                 let trbody = $("#user-" + ed_data.id_list[user_id]);
                 trbody.remove();
+              }
+            } else if (result.status === false && result.error.code === 140) {
+              let ids_list = result.error.ids.split(", ");
+              if (ids_list.length === 1) {
+                let trbody = $("#user-" + ids_list[0]);
+                $("#warning-text").html("user " + trbody.find("#table-user-name").text() + " not found");
+                $('#multiple-modal').modal("show");
+                trbody.remove();
+              } else {
+                let err_usr_names = [];
+                for(let user_id = 0; user_id < ids_list.length; user_id++) {
+                  let trbody = $("#user-" + ids_list[user_id]);
+                  trbody.remove();
+                  let usr_name = trbody.find("#table-user-name").text();
+                  err_usr_names.push(usr_name);
+                }
+                $("#warning-text").html("users " + err_usr_names.join(', ') + " not found");
+                $('#multiple-modal').modal("show");
               }
             }
           },
@@ -93,8 +115,6 @@ function multipleEditFunction(editButton, actionSelect) {
                 trbody.find(".fa-circle").attr("id", "active-circle");
               } else if (action === "set-not-active") {
                 trbody.find(".fa-circle").attr("id", "not-active-circle");
-              } else if (action === "delete-multiple-users") {
-                trbody.remove();
               } else {
                 alert(action);
               }
@@ -106,6 +126,24 @@ function multipleEditFunction(editButton, actionSelect) {
                 $(this).val("0");
               }
             });
+          } else if (result.status === false && result.error.code === 140) {
+            let ids_list = result.error.ids.split(", ");
+            if (ids_list.length === 1) {
+              let trbody = $("#user-" + ids_list[0]);
+              $("#warning-text").html("user " + trbody.find("#table-user-name").text() + " not found");
+              $('#multiple-modal').modal("show");
+              trbody.remove();
+            } else {
+              let err_usr_names = [];
+              for(let user_id = 0; user_id < ids_list.length; user_id++) {
+                let trbody = $("#user-" + ids_list[user_id]);
+                trbody.remove();
+                let usr_name = trbody.find("#table-user-name").text();
+                err_usr_names.push(usr_name);
+              }
+              $("#warning-text").html("users " + err_usr_names.join(', ') + " not found");
+              $('#multiple-modal').modal("show");
+            }
           } else {
             alert(result.error.message);
           }
@@ -213,7 +251,7 @@ $(document).ready(function() {
                 </div>
               </td>
               <td class='table-id' id='table-user-id'>${result.id}</td>
-              <td class='text-nowrap'>${user_data.user_first_name} ${user_data.user_last_name}</td>
+              <td class='text-nowrap' id='table-user-name'>${user_data.user_first_name} ${user_data.user_last_name}</td>
               <td class='text-center align-middle'><i class='fa fa-circle' id='${stat}'></i></td>
               <td class='text-nowrap align-middle'>${user_data.user_select}</td>
               <td class='text-center align-middle'>
@@ -225,8 +263,12 @@ $(document).ready(function() {
             `;
             $(`#user-${result.id}`).html(newhtml);
             $("#user-form-modal").modal("hide");
-          } else if(result.status === false && result.error !== null) {
-            $("#error-modal-text").html(errorObj.message);
+          } else if (result.status === false && result.error.code === 140) {
+            $("#user-form-modal").modal("hide");
+            let trbody = $("#user-" + user_data.update_id);
+            $("#warning-text").html("user " + trbody.find("#table-user-name").text() + " not found");
+            $('#multiple-modal').modal("show");
+            trbody.remove();
           }
         } else {
           if(result.status === true && result.error === null) {
@@ -239,7 +281,7 @@ $(document).ready(function() {
                 </div>
               </td>
               <td class='table-id' id='table-user-id'>${result.id}</td>
-              <td class='text-nowrap'>${user_data.user_first_name} ${user_data.user_last_name}</td>
+              <td class='text-nowrap' id='table-user-name'>${user_data.user_first_name} ${user_data.user_last_name}</td>
               <td class='text-center align-middle'><i class='fa fa-circle' id='${stat}'></i></td>
               <td class='text-nowrap align-middle'>${user_data.user_select}</td>
               <td class='text-center align-middle'>
@@ -252,8 +294,12 @@ $(document).ready(function() {
             `;
             tbody.append(newhtml);
             $("#user-form-modal").modal("hide");
-          } else if(result.status === false && result.error !== null) {
-            $("#error-modal-text").html(errorObj.message);
+          } else if (result.status === false && result.error.code === 140) {
+            $("#user-form-modal").modal("hide");
+            let trbody = $("#user-" + user_data.update_id);
+            $("#warning-text").html("user " + trbody.find("#table-user-name").text() + " not found");
+            $('#multiple-modal').modal("show");
+            trbody.remove();
           }
         }
       },
@@ -294,6 +340,11 @@ $(document).ready(function() {
           let result = JSON.parse(data.replace(/'/g, '"'));
           if (result.status === true && result.error === null) {
             $(`#user-${result.id}`).remove();
+          } else if (result.status === false && result.error.code === 140) {
+            let trbody = $("#user-" + del_data.delete_id);
+            $("#warning-text").html("user " + trbody.find("#table-user-name").text() + " not found");
+            $('#multiple-modal').modal("show");
+            trbody.remove();
           } else {
             alert(result.error.message);
           }
