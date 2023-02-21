@@ -10,20 +10,20 @@ $lname = $request["user_last_name"];
 $status = $request["user_status"];
 $role = $request["user_select"];
 
-if (!preg_match("/^[a-zA-Zа-яА-Я ]*$/u", $fname) || $fname == "") {
+if (!preg_match("/^[\p{L} ]*$/u", $fname) || $fname == "") {
   // check if fmane not empty, have Cyrillic and Latin letters, dont have numbers
   echo '{"status": false, "error": {"code": 136, "message": "incorrect first name"}}';
-} else if (!preg_match("/^[a-zA-Zа-яА-Я ]*$/u", $lname) || $lname == "") {
+} else if (!preg_match("/^[\p{L} ]*$/u", $lname) || $lname == "") {
   // check if lmane not empty, have Cyrillic and Latin letters, dont have numbers
   echo '{"status": false, "error": {"code": 137, "message": "incorrect last name"}}';
 } else if ($role == "") {
   // check if action not empty
   echo '{"status": false, "error": {"code": 138, "message": "incorrect user Role"}}';
 } else {
+
   if($id == -1) {
     $query = "INSERT INTO user (`first_name`,`last_name`,`status`, `role`) VALUES ('$fname','$lname','$status','$role')";
     $query_run = mysqli_query($conn, $query);
-
     if ($query_run) {
       $query_get = "SELECT * FROM user ORDER BY id DESC LIMIT 1";
       $result = mysqli_query($conn, $query_get);

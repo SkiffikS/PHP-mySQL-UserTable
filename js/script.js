@@ -46,7 +46,7 @@ function multipleEditFunction(editButton, actionSelect) {
         $("#delete-modat-text").html(`Delete users: ${user_names.join(', ')}?`)
       }
       $('#deletemodal').modal("show"); // show delete modal
-      $("#delete-data-btn").click(function(e) {
+      $("#delete-data-btn").off("click").on("click", function(e) {
         // if user click "delete"
         $("#deletemodal").modal("hide");
         e.preventDefault(); // window to which we will return after func
@@ -61,13 +61,14 @@ function multipleEditFunction(editButton, actionSelect) {
           data: ed_data,
           success: function(data) {
             let result = JSON.parse(data.replace(/'/g, '"'));
+            console.log(result);
             if (result.status === true && result.error === null) {
               for(let user_id = 0; user_id < ed_data.id_list.length; user_id++) {
                 let trbody = $("#user-" + ed_data.id_list[user_id]);
                 trbody.remove();
               }
             } else if (result.status === false && result.error.code === 140) {
-              let ids_list = result.error.ids.split(", ");
+              let ids_list = result.error.ids.split(",");
               if (ids_list.length === 1) {
                 let trbody = $("#user-" + ids_list[0]);
                 $("#warning-text").html("user " + trbody.find("#table-user-name").text() + " not found");
@@ -90,8 +91,9 @@ function multipleEditFunction(editButton, actionSelect) {
             alert(data);
           }
         });
-        $("#selectAll").prop("checked", false); // fix bug (after update data main checkbox active)
       });
+      $("#selectAll").prop("checked", false); // fix bug (after update data main checkbox active)
+      $('.user_checkbox').prop('checked', false);
     } else {
       // if action "set active" or "set not active"
       ed_data = { // data Object
@@ -127,7 +129,7 @@ function multipleEditFunction(editButton, actionSelect) {
               }
             });
           } else if (result.status === false && result.error.code === 140) {
-            let ids_list = result.error.ids.split(", ");
+            let ids_list = result.error.ids.split(",");
             if (ids_list.length === 1) {
               let trbody = $("#user-" + ids_list[0]);
               $("#warning-text").html("user " + trbody.find("#table-user-name").text() + " not found");
@@ -179,6 +181,7 @@ $(document).ready(function() {
       $("#user-select").val("");
       $("#UserModalLabel").html("Add User"); // modal title
       $('#user-status').prop('checked', false);
+      $('#user-status').val("0");
     } else {
       $("#update_id").val(data[1].text()); // if user in table
       $("#user-first-name").val(data[2].text().split(" ")[0]); // write user data in inputs
@@ -208,104 +211,108 @@ $(document).ready(function() {
     $(".close-modal").click(function() {
       $("#user-form-modal").modal("hide");
     });
-  });
 
-  $("#submit-modal").click(function(e) {
-    // click add button
+    $("#submit-modal").off("click").on("click", function(e) {
+      // click add button
 
-    e.preventDefault();
+      e.preventDefault();
 
-    user_data = { // write all user data for Object
-      update_id: $("#update_id").val(),
-      user_first_name: $("#user-first-name").val(),
-      user_last_name: $("#user-last-name").val(),
-      user_status: $("#user-status").val(),
-      user_select: $("#user-select").val(),
-      updatedata: true,
-    };
+      user_data = { // write all user data for Object
+        update_id: $("#update_id").val(),
+        user_first_name: $("#user-first-name").val(),
+        user_last_name: $("#user-last-name").val(),
+        user_status: $("#user-status").val(),
+        user_select: $("#user-select").val(),
+        updatedata: true,
+      };
 
-    $.ajax({
-      type: "POST",
-      url: "php/update.php",
-      data: user_data,
-      success: function(data) {
-        let result = JSON.parse(data.replace(/'/g, '"'));
-        let tbody = $("#admin-table-body");
-        let stat;
-        let newhtml;
-        let errorObj = result.error;
+      $.ajax({
+        type: "POST",
+        url: "php/update.php",
+        data: user_data,
+        success: function(data) {
+          let result = JSON.parse(data.replace(/'/g, '"'));
+          let tbody = $("#admin-table-body");
+          let stat;
+          let newhtml;
+          let errorObj = result.error;
 
-        if(user_data.user_status === "1") {
-          stat = "active-circle";
-        } else {
-          stat = "not-active-circle";
-        }
-
-        if ($(`#user-${result.id}`).length > 0) {
-          if(result.status === true && result.error === null) {
-            newhtml = `
-              <td class='align-middle'>
-                <div class='custom-control custom-control-inline custom-checkbox custom-control-nameless m-0 align-top'>
-                  <input type='checkbox' class='custom-control-input user_checkbox' data-user-id='${result.id}'>
-                  <label class='custom-control-label' for='checkbox2'></label>
-                </div>
-              </td>
-              <td class='table-id' id='table-user-id'>${result.id}</td>
-              <td class='text-nowrap' id='table-user-name'>${user_data.user_first_name} ${user_data.user_last_name}</td>
-              <td class='text-center align-middle'><i class='fa fa-circle' id='${stat}'></i></td>
-              <td class='text-nowrap align-middle'>${user_data.user_select}</td>
-              <td class='text-center align-middle'>
-                <div class='btn-group align-top'>
-                  <button class='btn btn-sm btn-outline-secondary editbtn'>Edit</button>
-                  <button href='#deleteEmployeeModal' class='btn btn-sm btn-outline-secondary deletebtn' type='button' data-toggle='modal'><i class='fa fa-trash update' title='Delete'></i></button>
-                </div>
-              </td>
-            `;
-            $(`#user-${result.id}`).html(newhtml);
-            $("#user-form-modal").modal("hide");
-          } else if (result.status === false && result.error.code === 140) {
-            $("#user-form-modal").modal("hide");
-            let trbody = $("#user-" + user_data.update_id);
-            $("#warning-text").html("user " + trbody.find("#table-user-name").text() + " not found");
-            $('#multiple-modal').modal("show");
-            trbody.remove();
+          if(user_data.user_status === "1") {
+            stat = "active-circle";
+          } else {
+            stat = "not-active-circle";
           }
-        } else {
-          if(result.status === true && result.error === null) {
-            newhtml = `
-            <tr id='user-${result.id}'>
-              <td class='align-middle'>
-                <div class='custom-control custom-control-inline custom-checkbox custom-control-nameless m-0 align-top'>
-                  <input type='checkbox' class='custom-control-input user_checkbox' data-user-id='${result.id}'>
-                  <label class='custom-control-label' for='checkbox2'></label>
-                </div>
-              </td>
-              <td class='table-id' id='table-user-id'>${result.id}</td>
-              <td class='text-nowrap' id='table-user-name'>${user_data.user_first_name} ${user_data.user_last_name}</td>
-              <td class='text-center align-middle'><i class='fa fa-circle' id='${stat}'></i></td>
-              <td class='text-nowrap align-middle'>${user_data.user_select}</td>
-              <td class='text-center align-middle'>
-                <div class='btn-group align-top'>
-                  <button class='btn btn-sm btn-outline-secondary editbtn'>Edit</button>
-                  <button href='#deleteEmployeeModal' class='btn btn-sm btn-outline-secondary deletebtn' type='button' data-toggle='modal'><i class='fa fa-trash update' title='Delete'></i></button>
-                </div>
-              </td>
-            </tr>
-            `;
-            tbody.append(newhtml);
-            $("#user-form-modal").modal("hide");
-          } else if (result.status === false && result.error.code === 140) {
-            $("#user-form-modal").modal("hide");
-            let trbody = $("#user-" + user_data.update_id);
-            $("#warning-text").html("user " + trbody.find("#table-user-name").text() + " not found");
-            $('#multiple-modal').modal("show");
-            trbody.remove();
+
+          if ($(`#user-${result.id}`).length > 0) {
+            if(result.status === true && result.error === null) {
+              newhtml = `
+                <td class='align-middle'>
+                  <div class='custom-control custom-control-inline custom-checkbox custom-control-nameless m-0 align-top'>
+                    <input type='checkbox' class='custom-control-input user_checkbox' data-user-id='${result.id}'>
+                    <label class='custom-control-label' for='checkbox2'></label>
+                  </div>
+                </td>
+                <td class='table-id' id='table-user-id'>${result.id}</td>
+                <td class='text-nowrap' id='table-user-name'>${user_data.user_first_name} ${user_data.user_last_name}</td>
+                <td class='text-center align-middle'><i class='fa fa-circle' id='${stat}'></i></td>
+                <td class='text-nowrap align-middle'>${user_data.user_select}</td>
+                <td class='text-center align-middle'>
+                  <div class='btn-group align-top'>
+                    <button class='btn btn-sm btn-outline-secondary editbtn'>Edit</button>
+                    <button href='#deleteEmployeeModal' class='btn btn-sm btn-outline-secondary deletebtn' type='button' data-toggle='modal'><i class='fa fa-trash update' title='Delete'></i></button>
+                  </div>
+                </td>
+              `;
+              $(`#user-${result.id}`).html(newhtml);
+              $("#user-form-modal").modal("hide");
+            } else if (result.status === false && result.error.code === 140) {
+              $("#user-form-modal").modal("hide");
+              let trbody = $("#user-" + user_data.update_id);
+              $("#warning-text").html("user " + trbody.find("#table-user-name").text() + " not found");
+              $('#multiple-modal').modal("show");
+              trbody.remove();
+            } else {
+              $("#error-modal-text").html(result.error.message);
+            }
+          } else {
+            if(result.status === true && result.error === null) {
+              newhtml = `
+              <tr id='user-${result.id}'>
+                <td class='align-middle'>
+                  <div class='custom-control custom-control-inline custom-checkbox custom-control-nameless m-0 align-top'>
+                    <input type='checkbox' class='custom-control-input user_checkbox' data-user-id='${result.id}'>
+                    <label class='custom-control-label' for='checkbox2'></label>
+                  </div>
+                </td>
+                <td class='table-id' id='table-user-id'>${result.id}</td>
+                <td class='text-nowrap' id='table-user-name'>${user_data.user_first_name} ${user_data.user_last_name}</td>
+                <td class='text-center align-middle'><i class='fa fa-circle' id='${stat}'></i></td>
+                <td class='text-nowrap align-middle'>${user_data.user_select}</td>
+                <td class='text-center align-middle'>
+                  <div class='btn-group align-top'>
+                    <button class='btn btn-sm btn-outline-secondary editbtn'>Edit</button>
+                    <button href='#deleteEmployeeModal' class='btn btn-sm btn-outline-secondary deletebtn' type='button' data-toggle='modal'><i class='fa fa-trash update' title='Delete'></i></button>
+                  </div>
+                </td>
+              </tr>
+              `;
+              tbody.append(newhtml);
+              $("#user-form-modal").modal("hide");
+            } else if (result.status === false && result.error.code === 140) {
+              $("#user-form-modal").modal("hide");
+              let trbody = $("#user-" + user_data.update_id);
+              $("#warning-text").html("user " + trbody.find("#table-user-name").text() + " not found");
+              $('#multiple-modal').modal("show");
+              trbody.remove();
+            } else {
+              $("#error-modal-text").html(result.error.message);
+            }
           }
+        },
+        error: function(data) {
+          alert(data);
         }
-      },
-      error: function(data) {
-        alert(data);
-      }
+      });
     });
   });
 
@@ -342,8 +349,6 @@ $(document).ready(function() {
             $(`#user-${result.id}`).remove();
           } else if (result.status === false && result.error.code === 140) {
             let trbody = $("#user-" + del_data.delete_id);
-            $("#warning-text").html("user " + trbody.find("#table-user-name").text() + " not found");
-            $('#multiple-modal').modal("show");
             trbody.remove();
           } else {
             alert(result.error.message);
