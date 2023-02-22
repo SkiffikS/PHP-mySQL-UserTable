@@ -36,7 +36,7 @@ if (count($not_found) === 0) {
     echo '{"status": false, "error": {"code": '.$error_number.', "message": "'.$error_text.'"}}';
   }
 } else {
-  echo '{"status": false, "error": {"code": 140, "message": "User not found", "ids": "'. implode(',', $not_found) .'"}}';
+  echo '{"status": false, "action": "'.$action.'", "error": {"code": 140, "message": "User not found", "ids": "'. implode(',', $not_found) .'"}}';
 }
 
 mysqli_close($conn);

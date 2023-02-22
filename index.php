@@ -94,7 +94,7 @@
                             if ($row["status"] == 1) { // status style
                               $status = "active-circle";
                             } else {
-                              $status = "not-active-circle";
+                              $status = "";
                             }
                             echo "
                             <tr id='user-$id'>
@@ -106,7 +106,7 @@
                               </td>
                               <td class='table-id' id='table-user-id'>$id</td>
                               <td class='text-nowrap' id='table-user-name'>$first_name $last_name</td>
-                              <td class='text-center align-middle'><i class='fa fa-circle' id='$status'></i></td>
+                              <td class='text-center align-middle'><i class='fa fa-circle $status'></i></td>
                               <td class='text-nowrap align-middle'>$role</td>
                               <td class='text-center align-middle'>
                                 <div class='btn-group align-top'>

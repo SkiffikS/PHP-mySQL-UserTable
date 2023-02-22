@@ -91,9 +91,9 @@ function multipleEditFunction(editButton, actionSelect) {
             alert(data);
           }
         });
+        $("#selectAll").prop("checked", false); // fix bug (after update data main checkbox active)
+        $('.user_checkbox').prop('checked', false);
       });
-      $("#selectAll").prop("checked", false); // fix bug (after update data main checkbox active)
-      $('.user_checkbox').prop('checked', false);
     } else {
       // if action "set active" or "set not active"
       ed_data = { // data Object
@@ -114,15 +114,15 @@ function multipleEditFunction(editButton, actionSelect) {
             for(let user_id = 0; user_id < ed_data.id_list.length; user_id++) {
               let trbody = $("#user-" + ed_data.id_list[user_id]);
               if (action === "set-active") {
-                trbody.find(".fa-circle").attr("id", "active-circle");
+                trbody.find(".fa-circle").addClass("active-circle");
               } else if (action === "set-not-active") {
-                trbody.find(".fa-circle").attr("id", "not-active-circle");
+                trbody.find(".fa-circle").removeClass("active-circle");
               } else {
                 alert(action);
               }
             }
             $(".user_checkbox").each(function() {
-              if ($(this).closest("tr").find(".fa-circle").attr("id") === "active-circle") {
+              if ($(this).closest("tr").find(".fa-circle").hasClass("active-circle")) {
                 $(this).val("1");
               } else {
                 $(this).val("0");
@@ -130,22 +130,38 @@ function multipleEditFunction(editButton, actionSelect) {
             });
           } else if (result.status === false && result.error.code === 140) {
             let ids_list = result.error.ids.split(",");
-            if (ids_list.length === 1) {
-              let trbody = $("#user-" + ids_list[0]);
-              $("#warning-text").html("user " + trbody.find("#table-user-name").text() + " not found");
-              $('#multiple-modal').modal("show");
-              trbody.remove();
-            } else {
-              let err_usr_names = [];
-              for(let user_id = 0; user_id < ids_list.length; user_id++) {
-                let trbody = $("#user-" + ids_list[user_id]);
-                trbody.remove();
-                let usr_name = trbody.find("#table-user-name").text();
-                err_usr_names.push(usr_name);
+            let err_usr_names = [];
+            let error_msg;
+            let trbody
+            for (let us_id = 0; us_id < ed_data.id_list.length; us_id++) {
+              if (ids_list.includes(ed_data.id_list[us_id])) {
+                err_usr_names.push(ed_data.id_list[us_id]);
+              } else {
+                trbody = $("#user-" + ed_data.id_list[us_id]);
+                if (result.action === "set-active") {
+                  trbody.find(".fa-circle").addClass("active-circle");
+                } else if (result.action === "set-not-active") {
+                  trbody.find(".fa-circle").removeClass("active-circle");
+                } else {
+                  alert(action);
+                }
               }
-              $("#warning-text").html("users " + err_usr_names.join(', ') + " not found");
-              $('#multiple-modal').modal("show");
             }
+            console.log(err_usr_names);
+            if (err_usr_names.length === 1) {
+              trbody = $("#user-" + err_usr_names[0]);
+              error_msg = "user " + trbody.find("#table-user-name").text() + "not found";
+            } else {
+              let err_user_names = [];
+              for (let er_user = 0; er_user < err_usr_names.length; er_user++) {
+                trbody = $("#user-" + err_usr_names[er_user]);
+                let er_user_name = trbody.find("#table-user-name").text();
+                err_user_names.push(er_user_name);
+              }
+              error_msg = "Users " + err_user_names.join(', ') + "not found"
+            }
+            $("#warning-text").html(error_msg);
+            $("#multiple-modal").modal("show");
           } else {
             alert(result.error.message);
           }
@@ -188,7 +204,7 @@ $(document).ready(function() {
       $("#user-last-name").val(data[2].text().split(" ")[1]);
       $("#user-select").val(data[4].text());
       $("#UserModalLabel").html("Edit User"); // modal title
-      if(data[3].find(".fa-circle").attr("id") === "active-circle") {
+      if(data[3].find(".fa-circle").hasClass("active-circle")) {
         $('#user-status').prop('checked', true);
         $('#user-status').val("1");
       } else {
@@ -240,7 +256,7 @@ $(document).ready(function() {
           if(user_data.user_status === "1") {
             stat = "active-circle";
           } else {
-            stat = "not-active-circle";
+            stat = "";
           }
 
           if ($(`#user-${result.id}`).length > 0) {
@@ -254,7 +270,7 @@ $(document).ready(function() {
                 </td>
                 <td class='table-id' id='table-user-id'>${result.id}</td>
                 <td class='text-nowrap' id='table-user-name'>${user_data.user_first_name} ${user_data.user_last_name}</td>
-                <td class='text-center align-middle'><i class='fa fa-circle' id='${stat}'></i></td>
+                <td class='text-center align-middle'><i class='fa fa-circle ${stat}'></i></td>
                 <td class='text-nowrap align-middle'>${user_data.user_select}</td>
                 <td class='text-center align-middle'>
                   <div class='btn-group align-top'>
@@ -265,12 +281,6 @@ $(document).ready(function() {
               `;
               $(`#user-${result.id}`).html(newhtml);
               $("#user-form-modal").modal("hide");
-            } else if (result.status === false && result.error.code === 140) {
-              $("#user-form-modal").modal("hide");
-              let trbody = $("#user-" + user_data.update_id);
-              $("#warning-text").html("user " + trbody.find("#table-user-name").text() + " not found");
-              $('#multiple-modal').modal("show");
-              trbody.remove();
             } else {
               $("#error-modal-text").html(result.error.message);
             }
@@ -286,7 +296,7 @@ $(document).ready(function() {
                 </td>
                 <td class='table-id' id='table-user-id'>${result.id}</td>
                 <td class='text-nowrap' id='table-user-name'>${user_data.user_first_name} ${user_data.user_last_name}</td>
-                <td class='text-center align-middle'><i class='fa fa-circle' id='${stat}'></i></td>
+                <td class='text-center align-middle'><i class='fa fa-circle ${stat}'></i></td>
                 <td class='text-nowrap align-middle'>${user_data.user_select}</td>
                 <td class='text-center align-middle'>
                   <div class='btn-group align-top'>
@@ -298,12 +308,6 @@ $(document).ready(function() {
               `;
               tbody.append(newhtml);
               $("#user-form-modal").modal("hide");
-            } else if (result.status === false && result.error.code === 140) {
-              $("#user-form-modal").modal("hide");
-              let trbody = $("#user-" + user_data.update_id);
-              $("#warning-text").html("user " + trbody.find("#table-user-name").text() + " not found");
-              $('#multiple-modal').modal("show");
-              trbody.remove();
             } else {
               $("#error-modal-text").html(result.error.message);
             }
@@ -330,7 +334,7 @@ $(document).ready(function() {
     $("#delete_id").val(data[1]); // id user
     $("#delete-modat-text").html(`Delete user ${data[2]}?`)
 
-    $("#delete-data-btn").click(function(e) {
+    $("#delete-data-btn").off("click").on("click", function(e) {
 
       e.preventDefault();
 
@@ -367,7 +371,7 @@ $(document).ready(function() {
 
   // checked functions
   // -----------------------------------------------------------------------------------------------
-  $("#selectAll").click(function() {
+  $(document).on("click", "#selectAll", function() {
     // set check or not check if click main checkbox
     if (this.checked) {
       $(".user_checkbox").each(function() {
@@ -380,15 +384,15 @@ $(document).ready(function() {
     }
   });
 
-  $(".user_checkbox").each(function() {
-    if ($(this).closest("tr").find(".fa-circle").attr("id") === "active-circle") {
+  $(document).on("click", ".user_checkbox", function() {
+    if ($(this).closest("tr").find(".fa-circle").hasClass("active-circle")) {
       $(this).val("1");
     } else {
       $(this).val("0");
     }
   });
 
-  $(".user_checkbox").click(function () {
+  $(document).on("click", ".user_checkbox", function() {
     if ($('.user_checkbox:checked').length === $('.user_checkbox').length) {
       $('#selectAll').prop('checked', true);
     } else {

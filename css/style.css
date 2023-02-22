@@ -9,11 +9,11 @@ body {
   display: none;
 }
 
-#active-circle {
-  color: rgb(0, 179, 0);
+.active-circle {
+  color: rgb(0, 179, 0) !important;
 }
 
-#not-active-circle {
+.fa-circle {
   color: gray;
 }
 /* ---------------------------------------------------------------------------- */
